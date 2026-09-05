@@ -36,7 +36,7 @@ Find `*/outline.yaml` file in current working directory, read items list, endpoi
 - `{fields_path}`: absolute path to {topic}/fields.yaml
 - `{output_path}`: absolute path to {output_dir}/{item_name_slug}.json (slugify item_name: replace spaces with _, remove special chars)
 - `{web_search_brief}`: full content of `~/.agents/skills/research/web-search-brief.md`
-- `{endpoints_clause}`: "" when outline `search_endpoints` is `[international]`; when it includes chinese: "You may also route the chinese-tech module and query Chinese tech communities (CSDN, Zhihu, Juejin, SegmentFault, V2EX)."
+- `{endpoints_clause}`: "" when outline `search_endpoints` is `international`; when it is `chinese`: "This run's endpoint policy is chinese: route the chinese-tech module and target Chinese tech communities (CSDN, Zhihu, Juejin, SegmentFault, V2EX) with bilingual queries."
 
 **Hard Constraint**: The following prompt must be strictly reproduced, only replacing variables in {xxx}, do not modify structure or wording.
 

@@ -26,14 +26,16 @@ Output {step1_output}, use AskUserQuestion to confirm:
 - Need to add/remove items?
 - Does field framework meet requirements?
 
-### Step 2: Choose Search Endpoints
-Use AskUserQuestion to ask which search endpoints to use for this run
-(both options are always available in this edition):
-- **international only** — international web, GitHub, Stack Overflow, academic sources (default)
-- **international + chinese** — additionally includes CSDN, Zhihu, Juejin, SegmentFault, V2EX and other Chinese tech communities
+### Step 2: Choose Search Endpoint
+Use AskUserQuestion to ask which search endpoint this run uses — strictly
+either/or (single Z.ai account; pick one region for the run; both choices
+are always available in this edition):
+- **international** — international web, GitHub, Stack Overflow, academic sources (default)
+- **chinese** — Chinese tech communities: CSDN, Zhihu, Juejin, SegmentFault, V2EX
 
-Record the answer — it is written to `outline.yaml` as `search_endpoints` in
-Step 4 and honored by `/research-deep`.
+Record the answer — it is written to `outline.yaml` as the scalar
+`search_endpoints: international | chinese` in Step 4 and honored by
+`/research-deep`.
 
 Then use AskUserQuestion to ask for time range (e.g., last 6 months, since 2024, unlimited).
 
@@ -42,7 +44,7 @@ Then use AskUserQuestion to ask for time range (e.g., last 6 months, since 2024,
 - `{YYYY-MM-DD}`: Current date (`date +%Y-%m-%d`)
 - `{step1_output}`: Complete output from Step 1
 - `{time_range}`: User specified time range
-- `{endpoints_clause}`: "" when international only; when chinese is included: "You may also route the chinese-tech module and query Chinese tech communities (CSDN, Zhihu, Juejin, SegmentFault, V2EX)."
+- `{endpoints_clause}`: "" when `search_endpoints` is international; when chinese: "This run's endpoint policy is chinese: route the chinese-tech module and target Chinese tech communities (CSDN, Zhihu, Juejin, SegmentFault, V2EX) with bilingual queries."
 
 **Hard Constraint**: The following prompt must be strictly reproduced, only replacing variables in {xxx}, do not modify structure or wording. Prepend the search-agent brief: read `web-search-brief.md` (in this skill's directory) and place its full content above this template in the Agent prompt.
 
@@ -93,7 +95,7 @@ Merge {step1_output}, {step2_output} and user's existing fields, generate two fi
 **outline.yaml** (items + config):
 - topic: Research topic
 - items: Research objects list
-- search_endpoints: `[international]` or `[international, chinese]` (from Step 2)
+- search_endpoints: `international` or `chinese` — either/or, from Step 2
 - execution:
   - batch_size: Number of parallel agents (confirm with AskUserQuestion)
   - items_per_agent: Items per agent (confirm with AskUserQuestion)

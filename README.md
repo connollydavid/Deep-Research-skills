@@ -37,15 +37,17 @@ dependencies (the bundled `validate_json.py` is stdlib-only).
 # English edition (default endpoints: international)
 cp -r skills/research-zcode-en/* ~/.agents/skills/
 
-# Chinese edition (default endpoints: international + chinese)
+# Chinese edition (default endpoint: chinese)
 cp -r skills/research-zcode-zh/* ~/.agents/skills/
 ```
 
 Install one edition at a time (both register the same five skill names).
-Both editions offer the same endpoint choice at `/research` time —
-international only, or international plus Chinese tech communities —
-recorded in `outline.yaml` as `search_endpoints` and honored by
-`/research-deep`. Skills are discovered at session start.
+Both editions ask the same either/or endpoint question at `/research`
+time — international, or Chinese — reflecting a single Z.ai account: one
+region per run. The choice is recorded in `outline.yaml` as the scalar
+`search_endpoints: international | chinese` and honored by
+`/research-deep` (en defaults to international, zh to chinese).
+Skills are discovered at session start.
 
 ### Claude Code
 ```bash

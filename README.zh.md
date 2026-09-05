@@ -36,14 +36,16 @@ Agent 工具。无需安装 agent 文件、无需环境变量、无 Python 依�
 # 英文版（默认端点：仅国际）
 cp -r skills/research-zcode-en/* ~/.agents/skills/
 
-# 中文版（默认端点：国际 + 中文）
+# 中文版（默认端点：chinese）
 cp -r skills/research-zcode-zh/* ~/.agents/skills/
 ```
 
 同一时间只安装一个版本（两者注册相同的五个技能名）。两个版本在
-`/research` 时提供相同的端点选择——仅国际，或国际加中文技术社区——
-该选择写入 `outline.yaml` 的 `search_endpoints` 字段并由
-`/research-deep` 遵循执行。技能在会话启动时被发现。
+`/research` 时提供相同的二选一端点问题——国际，或中文——对应单一
+Z.ai 账户：每次运行只选一个地区。该选择作为标量写入
+`outline.yaml` 的 `search_endpoints: international | chinese` 字段并由
+`/research-deep` 遵循执行（英文版默认 international，中文版默认
+chinese）。技能在会话启动时被发现。
 
 ### Claude Code
 ```bash

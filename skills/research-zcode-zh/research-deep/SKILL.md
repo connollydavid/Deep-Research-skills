@@ -36,7 +36,7 @@ description: 读取调研outline，为每个item启动独立agent进行深度调
 - `{fields_path}`: {topic}/fields.yaml的绝对路径
 - `{output_path}`: {output_dir}/{item_name_slug}.json的绝对路径（slugify处理item_name：空格替换为_，移除特殊字符）
 - `{web_search_brief}`: `~/.agents/skills/research/web-search-brief.md` 的完整内容
-- `{endpoints_clause}`: outline 的 `search_endpoints` 为 `[international]` 时为 ""；包含 chinese 时为："你也可以路由 chinese-tech 模块并检索中文技术社区（CSDN、知乎、掘金、SegmentFault、V2EX）。"
+- `{endpoints_clause}`: outline 的 `search_endpoints` 为 `international` 时为 ""；为 `chinese` 时为："本次运行的端点策略为 chinese：路由 chinese-tech 模块，以双语查询检索中文技术社区（CSDN、知乎、掘金、SegmentFault、V2EX）。"
 
 **硬约束**：以下prompt必须严格复述，仅替换{xxx}中的变量，禁止改写结构或措辞。
 

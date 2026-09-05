@@ -27,11 +27,12 @@ description: 对目标话题进行初步调研，生成调研outline（ZCode/Z.a
 - 字段框架是否满足需求？
 
 ### Step 2: 选择检索端点
-使用AskUserQuestion询问本次调研使用哪些检索端点（本版本两个选项始终可用）：
-- **仅国际端点（international）**——国际网页、GitHub、Stack Overflow、学术源
-- **国际 + 中文社区（international + chinese）**——额外包含 CSDN、知乎、掘金、SegmentFault、V2EX 等中文技术社区（默认）
+使用AskUserQuestion询问本次调研使用哪个检索端点——严格二选一（单一
+Z.ai 账户；每次运行选定一个地区；本版本两个选项始终可用）：
+- **国际端点（international）**——国际网页、GitHub、Stack Overflow、学术源
+- **中文端点（chinese）**——中文技术社区：CSDN、知乎、掘金、SegmentFault、V2EX（默认）
 
-答案将在 Step 4 写入 `outline.yaml` 的 `search_endpoints` 字段，并由 `/research-deep` 遵循执行。
+答案将在 Step 4 作为标量写入 `outline.yaml` 的 `search_endpoints: international | chinese` 字段，并由 `/research-deep` 遵循执行。
 
 随后使用AskUserQuestion询问时间范围（如：最近6个月、2024年至今、不限）。
 
@@ -40,7 +41,7 @@ description: 对目标话题进行初步调研，生成调研outline（ZCode/Z.a
 - `{YYYY-MM-DD}`: 当前日期（`date +%Y-%m-%d`）
 - `{step1_output}`: Step 1生成的完整输出内容
 - `{time_range}`: 用户指定的时间范围
-- `{endpoints_clause}`: 仅国际端点时为 ""；包含 chinese 时为："你也可以路由 chinese-tech 模块并检索中文技术社区（CSDN、知乎、掘金、SegmentFault、V2EX）。"
+- `{endpoints_clause}`: `search_endpoints` 为 international 时为 ""；为 chinese 时为："本次运行的端点策略为 chinese：路由 chinese-tech 模块，以双语查询检索中文技术社区（CSDN、知乎、掘金、SegmentFault、V2EX）。"
 
 **硬约束**：以下prompt必须严格复述，仅替换{xxx}中的变量，禁止改写结构或措辞。前置检索agent简报：读取本技能目录下的 `web-search-brief.md`，将其完整内容置于 Agent prompt 中本模板之前。
 
@@ -91,7 +92,7 @@ prompt = f"""{web_search_brief}
 **outline.yaml**（items + 配置）：
 - topic: 调研话题
 - items: 调研对象列表
-- search_endpoints: `[international]` 或 `[international, chinese]`（来自 Step 2）
+- search_endpoints: `international` 或 `chinese`——二选一，来自 Step 2
 - execution:
   - batch_size: 并行agent数量（AskUserQuestion确认）
   - items_per_agent: 每个agent负责的items数（AskUserQuestion确认）
