@@ -1,4 +1,4 @@
-# Deep Research Skill for Claude Code / OpenCode / Codex
+# Deep Research Skill for Claude Code / OpenCode / Codex / ZCode
 
 [English](README.md) | [中文](README.zh.md)
 
@@ -23,6 +23,27 @@
 git clone https://github.com/Weizhena/deep-research-skills.git
 cd deep-research-skills
 ```
+
+### ZCode（Z.ai）
+
+`skills/research-zcode-en/` 与 `skills/research-zcode-zh/` 两棵树完全
+面向运行 Z.ai 后端的 ZCode：网络发现用 WebSearch 工具，页面内容用
+WebFetch（需要整页 markdown 时用 webReader 后端），并行调研 agent 用
+Agent 工具。无需安装 agent 文件、无需环境变量、无 Python 依赖
+（自带的 `validate_json.py` 仅用标准库）。
+
+```bash
+# 英文版（默认端点：仅国际）
+cp -r skills/research-zcode-en/* ~/.agents/skills/
+
+# 中文版（默认端点：国际 + 中文）
+cp -r skills/research-zcode-zh/* ~/.agents/skills/
+```
+
+同一时间只安装一个版本（两者注册相同的五个技能名）。两个版本在
+`/research` 时提供相同的端点选择——仅国际，或国际加中文技术社区——
+该选择写入 `outline.yaml` 的 `search_endpoints` 字段并由
+`/research-deep` 遵循执行。技能在会话启动时被发现。
 
 ### Claude Code
 ```bash

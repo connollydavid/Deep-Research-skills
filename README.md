@@ -1,4 +1,4 @@
-# Deep Research Skill for Claude Code / OpenCode / Codex
+# Deep Research Skill for Claude Code / OpenCode / Codex / ZCode
 
 [English](README.md) | [中文](README.zh.md)
 
@@ -23,6 +23,29 @@ A structured research workflow skill for Claude Code, OpenCode, and Codex, suppo
 git clone https://github.com/Weizhena/deep-research-skills.git
 cd deep-research-skills
 ```
+
+### ZCode (Z.ai)
+
+The `skills/research-zcode-en/` and `skills/research-zcode-zh/` trees are
+fully targeted at ZCode running Z.ai backends: web discovery via the
+WebSearch tool, page content via WebFetch (or the webReader backend for
+full-page markdown), and parallel research agents via the Agent tool.
+No agent files to install, no environment variables, and no Python
+dependencies (the bundled `validate_json.py` is stdlib-only).
+
+```bash
+# English edition (default endpoints: international)
+cp -r skills/research-zcode-en/* ~/.agents/skills/
+
+# Chinese edition (default endpoints: international + chinese)
+cp -r skills/research-zcode-zh/* ~/.agents/skills/
+```
+
+Install one edition at a time (both register the same five skill names).
+Both editions offer the same endpoint choice at `/research` time —
+international only, or international plus Chinese tech communities —
+recorded in `outline.yaml` as `search_endpoints` and honored by
+`/research-deep`. Skills are discovered at session start.
 
 ### Claude Code
 ```bash
