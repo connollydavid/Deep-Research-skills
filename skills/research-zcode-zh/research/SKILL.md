@@ -101,6 +101,7 @@ prompt = f"""{web_search_brief}
 **fields.yaml**（字段定义）——用 Write 工具以纯文本写入：
 - 字段分类与定义
 - 每个字段的name、description、detail_level
+- 条目可用流式（`- {name: ...}`）或块式（`- name:` 加缩进键）写法；校验器两者都接受
 - detail_level层级: brief -> moderate -> detailed
 - uncertain: 不确定字段列表（保留字段，深度调研阶段自动填充）
 

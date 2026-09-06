@@ -49,6 +49,15 @@ region per run. The choice is recorded in `outline.yaml` as the scalar
 `/research-deep` (en defaults to international, zh to chinese).
 Skills are discovered at session start.
 
+Smoke-tested 2026-09-06 (en edition, international): the either/or
+endpoint gate, the background search agent, and the validator were all
+exercised end to end on a live run. Two validator gaps surfaced and were
+fixed the same day: block-style `fields.yaml` entries now parse alongside
+flow style, and nested descent follows the categories defined in
+`fields.yaml` (with `CATEGORY_MAPPING` kept as legacy aliases), closing a
+vacuous-pass hole on custom categories. `checks/run_checks.sh` locks both.
+`research-deep` / `research-report` remain exercised only by first real use.
+
 ### Claude Code
 ```bash
 # English version

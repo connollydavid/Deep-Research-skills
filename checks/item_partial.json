@@ -1,0 +1,9 @@
+{
+  "basic_info": {
+    "alpha": "present but beta (required) is missing"
+  },
+  "metrics": {
+    "gamma": 1,
+    "delta": 2
+  }
+}

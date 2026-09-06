@@ -47,6 +47,14 @@ Z.ai 账户：每次运行只选一个地区。该选择作为标量写入
 `/research-deep` 遵循执行（英文版默认 international，中文版默认
 chinese）。技能在会话启动时被发现。
 
+2026-09-06 实测（英文版，international）：二选一端点闸门、后台搜索
+agent 与校验器均已在一次真实运行中端到端验证。当天发现并修复了校验器
+的两个缺口：块式（block style）`fields.yaml` 条目现在与流式一并解析；
+嵌套下探跟随 `fields.yaml` 中实际定义的分类（`CATEGORY_MAPPING` 保留为
+兼容别名），堵住了自定义分类下的空洞通过（vacuous pass）漏洞。
+`checks/run_checks.sh` 为上述行为提供回归锁定。
+`research-deep` / `research-report` 留待首次真实使用时覆盖。
+
 ### Claude Code
 ```bash
 # 中文版

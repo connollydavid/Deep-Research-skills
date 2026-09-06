@@ -31,14 +31,24 @@ _KEY_VALUE = re.compile(r"^([^:]+):\s*(.*)$")
 
 
 def _parse_inline(s):
-    """Parse the flat scalar/list-of-scalars values the schema allows."""
+    """Parse the flat scalar/list-of-scalars values the schema allows, with
+    PyYAML's scalar semantics (true/false are booleans, quoted strings strip)."""
     s = s.strip()
     if not s:
         return None
     if s.startswith("[") and s.endswith("]"):
         inner = s[1:-1].strip()
-        return [v.strip().strip("'\"") for v in inner.split(",")] if inner else []
-    return s.strip("'\"")
+        return [_parse_inline(v) for v in inner.split(",")] if inner else []
+    if len(s) >= 2 and s[0] in "'\"" and s[-1] == s[0]:
+        return s[1:-1]
+    low = s.lower()
+    if low == "true":
+        return True
+    if low == "false":
+        return False
+    if low in ("null", "~"):
+        return None
+    return s
 
 
 def load_fields_yaml(fields_path):
@@ -47,8 +57,14 @@ def load_fields_yaml(fields_path):
         fields:
           <category>:
             - {name: ..., description: ..., detail_level: ...}
-            ...
+            - name: ...                # block style is equally valid
+              description: ...
+              detail_level: ...
         uncertain: []
+
+    Both the flow (`- {name: ...}`) and block (`- name: ...` with indented
+    continuation lines) entry styles are accepted; anything outside that
+    shape fails loudly instead of silently passing with zero fields.
 
     Required semantics (so the validator can never pass vacuously):
       - if ANY field carries an explicit `required:` key -> opt-in, preserve it
@@ -58,7 +74,18 @@ def load_fields_yaml(fields_path):
     lines = fields_path.read_text(encoding="utf-8").splitlines()
     defs = []  # (name, category, required_or_None)
     category = None
+    pending = None  # block-style field dict under construction
     in_fields_block = False
+
+    def _flush():
+        nonlocal pending
+        if pending is None:
+            return
+        if "name" not in pending:
+            print(f"[ERROR] field entry under `{category}` must be a dict with a `name` key; got keys {sorted(pending)}.")
+            sys.exit(1)
+        defs.append((str(pending["name"]), category, pending.get("required", None)))
+        pending = None
 
     for raw in lines:
         if not raw.strip() or raw.lstrip().startswith("#"):
@@ -67,6 +94,7 @@ def load_fields_yaml(fields_path):
         stripped = raw.strip()
 
         if indent == 0:
+            _flush()
             in_fields_block = stripped == "fields:"
             category = None
             continue
@@ -76,29 +104,40 @@ def load_fields_yaml(fields_path):
         m_item = _LIST_ITEM.match(raw)
         if m_item and category is not None:
             body = m_item.group(1).strip()
-            field = {}
             if body.startswith("{") and body.endswith("}"):
+                _flush()
+                field = {}
                 for pair in body[1:-1].split(","):
                     if ":" in pair:
                         k, v = pair.split(":", 1)
                         field[k.strip().strip("'\"")] = _parse_inline(v)
-            if "name" in field:
-                defs.append((str(field["name"]), category, field.get("required", None)))
-            else:
-                print(f"[ERROR] field entry under `{category}` must be a dict with a `name` key; got `{body}`.")
-                sys.exit(1)
-            continue
+                pending = field
+                _flush()
+                continue
+            m_first = _KEY_VALUE.match(body)
+            if m_first:
+                _flush()
+                pending = {m_first.group(1).strip().strip("'\""): _parse_inline(m_first.group(2))}
+                continue
+            print(f"[ERROR] field entry under `{category}` must be a dict with a `name` key; got `{body}`.")
+            sys.exit(1)
 
         m_kv = _KEY_VALUE.match(stripped)
         if m_kv and stripped.endswith(":"):
+            _flush()
             category = m_kv.group(1).strip().strip("'\"")
-        elif m_kv and indent <= 2 and stripped.split(":")[0] == "uncertain":
+        elif m_kv and indent <= 2 and m_kv.group(1).strip() == "uncertain":
+            _flush()
             break  # top-level sibling key: fields block ended
-        # category scalar values (if any) are ignored
+        elif m_kv and pending is not None:
+            pending[m_kv.group(1).strip().strip("'\"")] = _parse_inline(m_kv.group(2))
+        # remaining scalar values inside the block are ignored
+
+    _flush()
 
     if not defs:
         print("[ERROR] fields.yaml parsed zero fields. Ensure the `fields:` block "
-              "with `<category>: [- {name: ...}]` entries is present.")
+              "with `<category>: [- {name: ...} | - name: ...]` entries is present.")
         sys.exit(1)
 
     all_fields = {n for n, _, _ in defs}
@@ -110,9 +149,18 @@ def load_fields_yaml(fields_path):
     return all_fields, required_fields, field_categories
 
 
-def extract_json_fields(data, category_mapping=None):
+def extract_json_fields(data, category_mapping=None, schema_categories=()):
+    """Collect field names from a result JSON.
+
+    Nested descent happens for category keys from two sources: the legacy
+    CATEGORY_MAPPING aliases (upstream business-research schema) and the
+    categories actually defined in the run's fields.yaml (`schema_categories`).
+    Without the latter, any domain-specific category (hardware, kernels, ...)
+    is treated as a plain field and its contents are never checked - the
+    validator then passes vacuously on partial results.
+    """
     category_mapping = CATEGORY_MAPPING if category_mapping is None else category_mapping
-    nested_keys = {k for keys in category_mapping.values() for k in keys}
+    nested_keys = {k for keys in category_mapping.values() for k in keys} | set(schema_categories)
     fields = set()
     stack = [(data, True)]
     while stack:
@@ -124,6 +172,8 @@ def extract_json_fields(data, category_mapping=None):
                 if is_category_level and k in nested_keys:
                     if isinstance(v, dict):
                         stack.append((v, True))
+                    elif isinstance(v, list):
+                        stack.extend((item, True) for item in v if isinstance(item, dict))
                     continue
                 fields.add(k)
         elif isinstance(obj, list):
@@ -134,7 +184,7 @@ def extract_json_fields(data, category_mapping=None):
 def validate_json(json_path, all_fields, required_fields, field_categories):
     with json_path.open(encoding="utf-8") as f:
         data = json.load(f)
-    json_fields = extract_json_fields(data)
+    json_fields = extract_json_fields(data, schema_categories=set(field_categories.values()))
     covered = all_fields & json_fields
     missing = all_fields - json_fields
     extra = json_fields - all_fields

@@ -1,0 +1,18 @@
+# Regression fixture: block-style field entries (the style any natural
+# YAML writer emits; broke the parser once already - see lane history).
+fields:
+  basic_info:
+    - name: alpha
+      description: First field.
+      detail_level: brief
+    - name: beta
+      description: Second field, explicitly required.
+      required: true
+  metrics:
+    - name: gamma
+      description: Third field.
+      detail_level: brief
+    - name: delta
+      description: Fourth field, explicitly optional.
+      required: false
+uncertain: []

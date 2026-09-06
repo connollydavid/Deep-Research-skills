@@ -104,6 +104,7 @@ Merge {step1_output}, {step2_output} and user's existing fields, generate two fi
 **fields.yaml** (field definitions) — write with the Write tool as plain text:
 - Field categories and definitions
 - Each field's name, description, detail_level
+- Entries may be flow (`- {name: ...}`) or block (`- name:` with indented keys) style; the validator accepts both
 - detail_level hierarchy: brief -> moderate -> detailed
 - uncertain: Uncertain fields list (reserved field, auto-filled in deep phase)
 
